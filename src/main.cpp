@@ -2,8 +2,8 @@
 #include <Wire.h>
 #include <U8g2lib.h>
 
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C oled1(U8G2_R1, /* clock=*/ D2, /* data=*/ D3, /* reset=*/ U8X8_PIN_NONE);
-U8G2_SSD1306_128X64_NONAME_F_SW_I2C oled2(U8G2_R1, /* clock=*/ D4, /* data=*/ D5, /* reset=*/ U8X8_PIN_NONE);
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C oledL(U8G2_R3, /* clock=*/ SCK, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);
+U8G2_SSD1306_128X64_NONAME_F_HW_I2C oledR(U8G2_R1, /* clock=*/ SCK, /* data=*/ SDA, /* reset=*/ U8X8_PIN_NONE);
 
 // 目の状態を表すための構造体
 struct EyeState {
@@ -48,16 +48,16 @@ void updateEye(EyeState &eye) {
 
 void drawEyes() {
   // 左目
-  oled1.clearBuffer();
-  if (eyeL.isBlinking) drawClosedEye(oled1, eyeL);
-  else                 drawOpenEye(oled1, eyeL);
-  oled1.sendBuffer();
+  oledL.clearBuffer();
+  if (eyeL.isBlinking) drawClosedEye(oledL, eyeL);
+  else                 drawOpenEye(oledL, eyeL);
+  oledL.sendBuffer();
 
   // 右目
-  oled2.clearBuffer();
-  if (eyeR.isBlinking) drawClosedEye(oled2, eyeR);
-  else                 drawOpenEye(oled2, eyeR);
-  oled2.sendBuffer();
+  oledR.clearBuffer();
+  if (eyeR.isBlinking) drawClosedEye(oledR, eyeR);
+  else                 drawOpenEye(oledR, eyeR);
+  oledR.sendBuffer();
 }
 
 void handleBlink(EyeState &eye) {
@@ -75,10 +75,21 @@ void setup() {
   delay(1000);
   Serial.println("Hello, World!");
 
-  // pinMode(LED_BUILTIN, OUTPUT);
+  oledL.setI2CAddress(0x3C << 1); // 左目
+  oledR.setI2CAddress(0x3D << 1); // 右目
 
-  oled1.begin();
-  oled2.begin();
+  oledL.begin();
+  oledR.begin();
+
+  // oledL.clearBuffer();
+  // oledL.setFont(u8g2_font_ncenB08_tr);
+  // oledL.drawStr(0, 15, "LEFT");
+  // oledL.sendBuffer();
+
+  // oledR.clearBuffer();
+  // oledR.setFont(u8g2_font_ncenB08_tr);
+  // oledR.drawStr(0, 15, "RIGHT");
+  // oledR.sendBuffer();
 }
 
 void loop() {
